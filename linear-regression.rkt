@@ -40,10 +40,10 @@
 
 (module+ main
   (let-values ([(xss ys) (load-housing-data)])
-    (let ([h (linear-regression/gaussian/gradient-descent
-              #:good-cost-diff 0.01
-              #:learning-rate 0.00000001
-              xss ys)])
+    (let ([h (time (linear-regression/gaussian/gradient-descent
+                    #:good-cost-diff 0.01
+                    #:learning-rate 0.00000001
+                    xss ys))])
       (plot #:x-min 0
             #:x-max 510
             #:y-min -10
