@@ -102,7 +102,8 @@
                   (let* ([i-size (* 28 28)]
                          [t-size (* i-size 60000)]
                          [bss (for/list ([i 60000])
-                                (read-bytes i-size))])
+                                (cons 1 (bytes->list (read-bytes i-size))))])
+                    bss))))#|
                     (displayln 'bss)
                     (let ([m (/ (for*/sum ([bs bss]
                                            [b bs])
@@ -116,7 +117,7 @@
                         (displayln s)
                         (for/list ([bs bss])
                           (cons 1 (for/list ([b bs])
-                                    (/ (- b m) s))))))))))
+                                    (/ (- b m) s))))))))))|#
             (λ ()
               (with-input-from-file mnist-labels
                 (λ ()
@@ -133,7 +134,8 @@
                   (let* ([i-size (* 28 28)]
                          [t-size (* i-size 10000)]
                          [bss (for/list ([i 10000])
-                                (read-bytes i-size))])
+                                (cons 1 (bytes->list (read-bytes i-size))))])
+                    bss))))#|
                     (displayln 'bss)
                     (let ([m (/ (for*/sum ([bs bss]
                                            [b bs])
@@ -147,7 +149,7 @@
                         (displayln s)
                         (for/list ([bs bss])
                           (cons 1 (for/list ([b bs])
-                                    (/ (- b m) s))))))))))
+                                    (/ (- b m) s))))))))))|#
             (λ ()
               (with-input-from-file test-mnist-labels
                 (λ ()
