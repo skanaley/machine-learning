@@ -29,8 +29,7 @@ function [f,g] = softmax_regression(theta, X,y)
 %%% YOUR CODE HERE %%%
 theta=[theta zeros(size(theta,1),1)];
 E=exp(theta'*X);
-S=1+sum(E);
-H=bsxfun(@rdivide,E,S);
+H=bsxfun(@rdivide,E,sum(E));
 I=sub2ind(size(H),y,1:size(H,2));
 f=-sum(log(H(I)));
 
