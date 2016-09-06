@@ -43,27 +43,22 @@ ceCost=-sum(log(H(I)));
 e=zeros(size(H));
 e(I)=1;
 e=H-e;
-for j=l-1:-1:1
-    a=hAct{j};
-    gradStack{j}.W=e*a'/m;
-    gradStack{j}.b=mean(e,2);
-    e=stack{j}.W'*e.*a.*(1-a);
+for i=l-1:-1:1
+    a=hAct{i};
+    gradStack{i}.W=e*a'/m;
+    gradStack{i}.b=mean(e,2);
+    e=stack{i}.W'*e.*a.*(1-a);
 end
 
 %% compute weight penalty cost and gradient for non-bias terms
 wCost=0;
-%{
-for j=1:l-1
-    wCost=wCost+sum(sum(stack{j}.W.^2));
+for i=1:l-1
+    wCost=wCost+sum(sum(stack{i}.W.^2));
+    gradStack{i}.W=gradStack{i}.W+ei.lambda*stack{i}.W;
 end
 wCost=wCost*ei.lambda/2;
-%}
 cost=ceCost+wCost;
-%{
-for j=1:l-1
-    gradStack{j}.W=gradStack{j}.W+ei.lambda*stack{j}.W;
-end
-%}
+
 %% reshape gradients into vector
 [grad] = stack2params(gradStack);
 end
