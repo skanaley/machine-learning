@@ -9,6 +9,7 @@ ei = [];
 % add common directory to your path for
 % minfunc and mnist data helpers
 addpath ../common;
+addpath ../ex1;
 addpath(genpath('../common/minFunc_2012/minFunc'));
 
 %% load mnist data
@@ -46,13 +47,13 @@ options.Method = 'lbfgs';
 [opt_params,opt_value,exitflag,output] = minFunc(@supervised_dnn_cost,...
     params,options,ei, data_train, labels_train);
 
-%% compute accuracy on the test and train set
-[~, ~, pred] = supervised_dnn_cost( opt_params, ei, data_test, [], true);
-[~,pred] = max(pred);
-acc_test = mean(pred'==labels_test);
-fprintf('test accuracy: %f\n', acc_test);
-
+%% compute accuracy on the train and test set
 [~, ~, pred] = supervised_dnn_cost( opt_params, ei, data_train, [], true);
 [~,pred] = max(pred);
 acc_train = mean(pred'==labels_train);
 fprintf('train accuracy: %f\n', acc_train);
+
+[~, ~, pred] = supervised_dnn_cost( opt_params, ei, data_test, [], true);
+[~,pred] = max(pred);
+acc_test = mean(pred'==labels_test);
+fprintf('test accuracy: %f\n', acc_test);
