@@ -43,9 +43,7 @@ numImages = size(images,3); % number of images
 
 % Same sizes as Wc,Wd,bc,bd. Used to hold gradient w.r.t above params.
 Wc_grad = zeros(size(Wc));
-Wd_grad = zeros(size(Wd));
 bc_grad = zeros(size(bc));
-bd_grad = zeros(size(bd));
 
 %%======================================================================
 %% STEP 1a: Forward Propagation
@@ -72,6 +70,16 @@ activations = zeros(convDim,convDim,numFilters,numImages);
 activationsPooled = zeros(outputDim,outputDim,numFilters,numImages);
 
 %%% YOUR CODE HERE %%%
+meanFilter=ones(poolDim)/(poolDim^2);
+for i=1:numImages
+    for j=1:numFilters
+        f=rot90(Wc(:,:,j),2);
+        a=sigmoid(bc(j)+conv2(images(:,:,i),f,'valid'));
+        activations(:,:,j,i)=a;
+        c=conv2(a,meanFilter,'valid');
+        activationsPooled(:,:,j,i)=c(1:poolDim:end,1:poolDim:end);
+    end
+end
 
 % Reshape activations into 2-d matrix, hiddenSize x numImages,
 % for Softmax layer
@@ -85,9 +93,11 @@ activationsPooled = reshape(activationsPooled,[],numImages);
 
 % numClasses x numImages for storing probability that each image belongs to
 % each class.
-probs = zeros(numClasses,numImages);
 
 %%% YOUR CODE HERE %%%
+E=exp(bsxfun(@plus,Wd*activationsPooled,bd));
+H=bsxfun(@rdivide,E,sum(E));
+probs=H;
 
 %%======================================================================
 %% STEP 1b: Calculate Cost
@@ -95,9 +105,9 @@ probs = zeros(numClasses,numImages);
 %  calculate above to evaluate the cross entropy objective.  Store your
 %  results in cost.
 
-cost = 0; % save objective into cost
-
 %%% YOUR CODE HERE %%%
+T=sparse(labels,1:numImages,ones(numImages,1),numClasses,numImages);
+cost=-sum(log(H(T==1)));
 
 % Makes predictions given probs and returns without backproagating errors.
 if pred
@@ -118,6 +128,22 @@ end;
 %  quickly.
 
 %%% YOUR CODE HERE %%%
+%{
+error subscripts:
+h -> hypothesis
+p -> output & error from pooling
+o -> output & error from convolution leading to pool input (o -> p-1)
+%}
+eh=(H-T)/numImages;
+ep=Wd'*eh;
+ep4=reshape(ep,outputDim,outputDim,numFilters,[]);
+eo=zeros(convDim,convDim,numFilters,numImages);
+for i=1:numImages
+    for j=1:numFilters
+        a=activations(:,:,j,i);
+        eo(:,:,j,i)=kron(ep4(:,:,j,i),meanFilter).*a.*(1-a);
+    end
+end
 
 %%======================================================================
 %% STEP 1d: Gradient Calculation
@@ -128,8 +154,17 @@ end;
 %  for that filter with each image and aggregate over images.
 
 %%% YOUR CODE HERE %%%
+Wd_grad=eh*activationsPooled';
+bd_grad=sum(eh,2);
+for i=1:numImages
+    for j=1:numFilters
+        e=eo(:,:,j,i);
+        r=rot90(e,2);
+        Wc_grad(:,:,j)=Wc_grad(:,:,j)+conv2(images(:,:,i),r,'valid');
+        bc_grad(j)=bc_grad(j)+sum(sum(e));
+    end
+end
 
 %% Unroll gradient into grad vector for minFunc
 grad = [Wc_grad(:) ; Wd_grad(:) ; bc_grad(:) ; bd_grad(:)];
-
 end

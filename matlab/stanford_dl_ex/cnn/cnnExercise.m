@@ -23,11 +23,12 @@ poolDim = 3;          % dimension of pooling region
 
 % Here we load MNIST training images
 addpath ../common/;
+addpath ../ex1;
 images = loadMNISTImages('../common/train-images-idx3-ubyte');
 images = reshape(images,imageDim,imageDim,numImages);
 
 W = randn(filterDim,filterDim,numFilters);
-b = rand(numFilters);
+b = rand(numFilters,1);
 
 %%======================================================================
 %% STEP 1: Implement and test convolution
